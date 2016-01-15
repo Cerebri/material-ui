@@ -1,6 +1,6 @@
-import React from 'react';
-import PureRenderMixin from 'react-addons-pure-render-mixin';
-import SvgIcon from '../../svg-icon';
+const React = require('react');
+const PureRenderMixin = require('react-addons-pure-render-mixin');
+const SvgIcon = require('../../svg-icon');
 
 const ActionSettingsApplications = React.createClass({
 
@@ -16,4 +16,4 @@ const ActionSettingsApplications = React.createClass({
 
 });
 
-export default ActionSettingsApplications;
+module.exports = ActionSettingsApplications;

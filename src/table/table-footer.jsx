@@ -1,39 +1,20 @@
-import React from 'react';
-import TableRowColumn from './table-row-column';
-import StylePropable from '../mixins/style-propable';
-import DefaultRawTheme from '../styles/raw-themes/light-raw-theme';
-import ThemeManager from '../styles/theme-manager';
+const React = require('react');
+const TableRowColumn = require('./table-row-column');
+const StylePropable = require('../mixins/style-propable');
+const DefaultRawTheme = require('../styles/raw-themes/light-raw-theme');
+const ThemeManager = require('../styles/theme-manager');
 
 const TableFooter = React.createClass({
 
-  propTypes: {
-    /**
-     * Controls whether or not header rows should be adjusted
-     * for a checkbox column. If the select all checkbox is true,
-     * this property will not influence the number of columns.
-     * This is mainly useful for "super header" rows so that
-     * the checkbox column does not create an offset that needs
-     * to be accounted for manually.
-     */
-    adjustForCheckbox: React.PropTypes.bool,
-    /**
-     * Children passed to table footer.
-     */
-    children: React.PropTypes.node,
-
-    /**
-     * The css class name of the root element.
-     */
-    className: React.PropTypes.string,
-
-    /**
-     * Override the inline-styles of the root element.
-     */
-    style: React.PropTypes.object,
-  },
+  mixins: [StylePropable],
 
   contextTypes: {
     muiTheme: React.PropTypes.object,
+  },
+
+  propTypes: {
+    adjustForCheckbox: React.PropTypes.bool,
+    style: React.PropTypes.object,
   },
 
   //for passing default theme context to children
@@ -41,9 +22,24 @@ const TableFooter = React.createClass({
     muiTheme: React.PropTypes.object,
   },
 
-  mixins: [
-    StylePropable,
-  ],
+  getChildContext () {
+    return {
+      muiTheme: this.state.muiTheme,
+    };
+  },
+
+  getInitialState () {
+    return {
+      muiTheme: this.context.muiTheme ? this.context.muiTheme : ThemeManager.getMuiTheme(DefaultRawTheme),
+    };
+  },
+
+  //to update theme inside state whenever a new theme is passed down
+  //from the parent / owner using context
+  componentWillReceiveProps (nextProps, nextContext) {
+    let newMuiTheme = nextContext.muiTheme ? nextContext.muiTheme : this.state.muiTheme;
+    this.setState({muiTheme: newMuiTheme});
+  },
 
   getDefaultProps() {
     return {
@@ -52,31 +48,12 @@ const TableFooter = React.createClass({
     };
   },
 
-  getInitialState() {
-    return {
-      muiTheme: this.context.muiTheme ? this.context.muiTheme : ThemeManager.getMuiTheme(DefaultRawTheme),
-    };
-  },
-
-  getChildContext() {
-    return {
-      muiTheme: this.state.muiTheme,
-    };
-  },
-
-  //to update theme inside state whenever a new theme is passed down
-  //from the parent / owner using context
-  componentWillReceiveProps(nextProps, nextContext) {
-    let newMuiTheme = nextContext.muiTheme ? nextContext.muiTheme : this.state.muiTheme;
-    this.setState({muiTheme: newMuiTheme});
-  },
-
   getTheme() {
     return this.state.muiTheme.tableFooter;
   },
 
   getStyles() {
-    const styles = {
+   const styles = {
       cell: {
         borderTop: '1px solid ' + this.getTheme().borderColor,
         verticalAlign: 'bottom',
@@ -87,6 +64,24 @@ const TableFooter = React.createClass({
     };
 
     return styles;
+  },
+
+  render() {
+    let {
+      className,
+      style,
+      ...other,
+    } = this.props;
+    let classes = 'mui-table-footer';
+    if (className) classes += ' ' + className;
+
+    let footerRows = this._createRows();
+
+    return (
+      <tfoot className={classes} style={this.prepareStyles(style)} {...other}>
+        {footerRows}
+      </tfoot>
+    );
   },
 
   _createRows() {
@@ -101,10 +96,11 @@ const TableFooter = React.createClass({
   _createRow(child, rowNumber) {
     let styles = this.getStyles();
     let props = {
+      className: 'mui-table-footer-row',
       displayBorder: false,
       key: 'f-' + rowNumber,
       rowNumber: rowNumber,
-      style: this.mergeStyles(styles.cell, child.props.style),
+      style: this.mergeAndPrefix(styles.cell, child.props.style),
     };
 
     let children = [this._getCheckboxPlaceholder(props)];
@@ -122,21 +118,6 @@ const TableFooter = React.createClass({
     return <TableRowColumn key={key} style={{width: 24}} />;
   },
 
-  render() {
-    let {
-      className,
-      style,
-      ...other,
-    } = this.props;
-    let footerRows = this._createRows();
-
-    return (
-      <tfoot className={className} style={this.prepareStyles(style)} {...other}>
-        {footerRows}
-      </tfoot>
-    );
-  },
-
 });
 
-export default TableFooter;
+module.exports = TableFooter;

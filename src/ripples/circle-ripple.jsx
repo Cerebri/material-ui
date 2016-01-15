@@ -1,27 +1,21 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import PureRenderMixin from 'react-addons-pure-render-mixin';
-import StylePropable from '../mixins/style-propable';
-import AutoPrefix from '../styles/auto-prefix';
-import Transitions from '../styles/transitions';
-import Colors from '../styles/colors';
+const React = require('react');
+const ReactDOM = require('react-dom');
+const PureRenderMixin = require('react-addons-pure-render-mixin');
+const StylePropable = require('../mixins/style-propable');
+const AutoPrefix = require('../styles/auto-prefix');
+const Transitions = require('../styles/transitions');
+const Colors = require('../styles/colors');
+
 
 const CircleRipple = React.createClass({
+
+  mixins: [PureRenderMixin, StylePropable],
 
   propTypes: {
     color: React.PropTypes.string,
     opacity: React.PropTypes.number,
-
-    /**
-     * Override the inline-styles of the root element.
-     */
     style: React.PropTypes.object,
   },
-
-  mixins: [
-    PureRenderMixin,
-    StylePropable,
-  ],
 
   getDefaultProps() {
     return {
@@ -54,6 +48,29 @@ const CircleRipple = React.createClass({
     }, 2000);
   },
 
+  render() {
+    const {
+      color,
+      opacity,
+      style,
+      ...other,
+    } = this.props;
+
+    const mergedStyles = this.mergeAndPrefix({
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      height: '100%',
+      width: '100%',
+      borderRadius: '50%',
+      backgroundColor: color,
+    }, style);
+
+    return (
+      <div {...other} style={mergedStyles} />
+    );
+  },
+
   _animate() {
     let style = ReactDOM.findDOMNode(this).style;
     const transitionValue = (
@@ -73,28 +90,6 @@ const CircleRipple = React.createClass({
     }, 0);
   },
 
-  render() {
-    const {
-      color,
-      opacity,
-      style,
-      ...other,
-    } = this.props;
-
-    const mergedStyles = this.mergeStyles({
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      height: '100%',
-      width: '100%',
-      borderRadius: '50%',
-      backgroundColor: color,
-    }, style);
-
-    return (
-      <div {...other} style={this.prepareStyles(mergedStyles)} />
-    );
-  },
 });
 
-export default CircleRipple;
+module.exports = CircleRipple;

@@ -1,22 +1,21 @@
-import React from 'react';
-import ContextPure from '../mixins/context-pure';
-import StylePropable from '../mixins/style-propable';
-import DefaultRawTheme from '../styles/raw-themes/light-raw-theme';
-import ThemeManager from '../styles/theme-manager';
+const React = require('react');
+const ContextPure = require('../mixins/context-pure');
+const StylePropable = require('../mixins/style-propable');
+const Styles = require('../utils/styles');
+const DefaultRawTheme = require('../styles/raw-themes/light-raw-theme');
+const ThemeManager = require('../styles/theme-manager');
 
 const FlatButtonLabel = React.createClass({
 
-  propTypes: {
-    label: React.PropTypes.node,
-
-    /**
-     * Override the inline-styles of the root element.
-     */
-    style: React.PropTypes.object,
-  },
+  mixins: [ContextPure, StylePropable],
 
   contextTypes: {
     muiTheme: React.PropTypes.object,
+  },
+
+  propTypes: {
+    label: React.PropTypes.node,
+    style: React.PropTypes.object,
   },
 
   //for passing default theme context to children
@@ -24,10 +23,24 @@ const FlatButtonLabel = React.createClass({
     muiTheme: React.PropTypes.object,
   },
 
-  mixins: [
-    ContextPure,
-    StylePropable,
-  ],
+  getChildContext () {
+    return {
+      muiTheme: this.state.muiTheme,
+    };
+  },
+
+  getInitialState () {
+    return {
+      muiTheme: this.context.muiTheme ? this.context.muiTheme : ThemeManager.getMuiTheme(DefaultRawTheme),
+    };
+  },
+
+  //to update theme inside state whenever a new theme is passed down
+  //from the parent / owner using context
+  componentWillReceiveProps (nextProps, nextContext) {
+    let newMuiTheme = nextContext.muiTheme ? nextContext.muiTheme : this.state.muiTheme;
+    this.setState({muiTheme: newMuiTheme});
+  },
 
   statics: {
     getRelevantContextKeys(muiTheme) {
@@ -35,25 +48,6 @@ const FlatButtonLabel = React.createClass({
         spacingDesktopGutterLess: muiTheme.rawTheme.spacing.desktopGutterLess,
       };
     },
-  },
-
-  getInitialState() {
-    return {
-      muiTheme: this.context.muiTheme ? this.context.muiTheme : ThemeManager.getMuiTheme(DefaultRawTheme),
-    };
-  },
-
-  getChildContext() {
-    return {
-      muiTheme: this.state.muiTheme,
-    };
-  },
-
-  //to update theme inside state whenever a new theme is passed down
-  //from the parent / owner using context
-  componentWillReceiveProps(nextProps, nextContext) {
-    let newMuiTheme = nextContext.muiTheme ? nextContext.muiTheme : this.state.muiTheme;
-    this.setState({muiTheme: newMuiTheme});
   },
 
   render: function() {
@@ -76,4 +70,4 @@ const FlatButtonLabel = React.createClass({
 
 });
 
-export default FlatButtonLabel;
+module.exports = FlatButtonLabel;

@@ -1,6 +1,6 @@
-import React from 'react';
+let React = require('react');
 
-export default {
+module.exports = {
 
   propTypes: {
     onChange: React.PropTypes.func,

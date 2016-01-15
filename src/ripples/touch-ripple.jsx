@@ -1,39 +1,23 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import PureRenderMixin from 'react-addons-pure-render-mixin';
-import ReactTransitionGroup from 'react-addons-transition-group';
-import StylePropable from '../mixins/style-propable';
-import Dom from '../utils/dom';
-import CircleRipple from './circle-ripple';
-import update from 'react-addons-update';
+const React = require('react');
+const ReactDOM = require('react-dom');
+const PureRenderMixin = require('react-addons-pure-render-mixin');
+const ReactTransitionGroup = require('react-addons-transition-group');
+const StylePropable = require('../mixins/style-propable');
+const Dom = require('../utils/dom');
+const ImmutabilityHelper = require('../utils/immutability-helper');
+const CircleRipple = require('./circle-ripple');
 
-function push(array, obj) {
-  const newObj = Array.isArray(obj) ? obj : [obj];
-  return update(array, {$push: newObj});
-}
-
-function shift(array) {
-  return update(array, {$splice: [[0, 1]]});
-}
 
 const TouchRipple = React.createClass({
 
+  mixins: [PureRenderMixin, StylePropable],
+
   propTypes: {
     centerRipple: React.PropTypes.bool,
-    children: React.PropTypes.node,
     color: React.PropTypes.string,
     opacity: React.PropTypes.number,
-
-    /**
-     * Override the inline-styles of the root element.
-     */
     style: React.PropTypes.object,
   },
-
-  mixins: [
-    PureRenderMixin,
-    StylePropable,
-  ],
 
   getInitialState() {
     //Touch start produces a mouse down event for compat reasons. To avoid
@@ -52,6 +36,49 @@ const TouchRipple = React.createClass({
     };
   },
 
+  render() {
+
+    const {
+      children,
+      style,
+    } = this.props;
+
+    const {
+      hasRipples,
+      ripples,
+    } = this.state;
+
+    let rippleGroup;
+    if (hasRipples) {
+      const mergedStyles = this.mergeAndPrefix({
+        height: '100%',
+        width: '100%',
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        overflow: 'hidden',
+      }, style);
+
+      rippleGroup = (
+        <ReactTransitionGroup style={mergedStyles}>
+          {ripples}
+        </ReactTransitionGroup>
+      );
+    }
+
+    return (
+      <div
+        onMouseUp={this._handleMouseUp}
+        onMouseDown={this._handleMouseDown}
+        onMouseLeave={this._handleMouseLeave}
+        onTouchStart={this._handleTouchStart}
+        onTouchEnd={this._handleTouchEnd}>
+        {rippleGroup}
+        {children}
+      </div>
+    );
+  },
+
   start(e, isRippleTouchGenerated) {
     if (this._ignoreNextMouseDown && !isRippleTouchGenerated) {
       this._ignoreNextMouseDown = false;
@@ -61,7 +88,7 @@ const TouchRipple = React.createClass({
     let ripples = this.state.ripples;
 
     //Add a ripple to the ripples array
-    ripples = push(ripples, (
+    ripples = ImmutabilityHelper.push(ripples, (
       <CircleRipple
         key={this.state.nextKey}
         style={!this.props.centerRipple ? this._getRippleStyle(e) : {}}
@@ -81,7 +108,7 @@ const TouchRipple = React.createClass({
   end() {
     const currentRipples = this.state.ripples;
     this.setState({
-      ripples: shift(currentRipples),
+      ripples: ImmutabilityHelper.shift(currentRipples),
     });
   },
 
@@ -140,49 +167,6 @@ const TouchRipple = React.createClass({
     return Math.sqrt((a * a) + (b * b));
   },
 
-
-  render() {
-    const {
-      children,
-      style,
-    } = this.props;
-
-    const {
-      hasRipples,
-      ripples,
-    } = this.state;
-
-    let rippleGroup;
-    if (hasRipples) {
-      const mergedStyles = this.mergeStyles({
-        height: '100%',
-        width: '100%',
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        overflow: 'hidden',
-      }, style);
-
-      rippleGroup = (
-        <ReactTransitionGroup style={this.prepareStyles(mergedStyles)}>
-          {ripples}
-        </ReactTransitionGroup>
-      );
-    }
-
-    return (
-      <div
-        onMouseUp={this._handleMouseUp}
-        onMouseDown={this._handleMouseDown}
-        onMouseLeave={this._handleMouseLeave}
-        onTouchStart={this._handleTouchStart}
-        onTouchEnd={this._handleTouchEnd}>
-        {rippleGroup}
-        {children}
-      </div>
-    );
-  },
-
 });
 
-export default TouchRipple;
+module.exports = TouchRipple;

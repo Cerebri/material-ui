@@ -1,13 +1,11 @@
-import React from 'react';
-import StylePropable from './mixins/style-propable';
-import DefaultRawTheme from './styles/raw-themes/light-raw-theme';
-import ThemeManager from './styles/theme-manager';
+const React = require('react');
+const StylePropable = require('./mixins/style-propable');
+const DefaultRawTheme = require('./styles/raw-themes/light-raw-theme');
+const ThemeManager = require('./styles/theme-manager');
 
 const AppCanvas = React.createClass({
 
-  propTypes: {
-    children: React.PropTypes.node,
-  },
+  mixins: [StylePropable],
 
   contextTypes: {
     muiTheme: React.PropTypes.object,
@@ -18,22 +16,21 @@ const AppCanvas = React.createClass({
     muiTheme: React.PropTypes.object,
   },
 
-  mixins: [StylePropable],
+  getChildContext () {
+    return {
+      muiTheme: this.state.muiTheme,
+    };
+  },
 
-  getInitialState() {
+  getInitialState () {
     return {
       muiTheme: this.context.muiTheme ? this.context.muiTheme : ThemeManager.getMuiTheme(DefaultRawTheme),
     };
   },
 
-  getChildContext() {
-    return {
-      muiTheme: this.state.muiTheme,
-    };
-  },
   //to update theme inside state whenever a new theme is passed down
   //from the parent / owner using context
-  componentWillReceiveProps(nextProps, nextContext) {
+  componentWillReceiveProps (nextProps, nextContext) {
     let newMuiTheme = nextContext.muiTheme ? nextContext.muiTheme : this.state.muiTheme;
     this.setState({muiTheme: newMuiTheme});
   },
@@ -42,6 +39,7 @@ const AppCanvas = React.createClass({
     let styles = {
       height: '100%',
       backgroundColor: this.state.muiTheme.rawTheme.palette.canvasColor,
+      WebkitFontSmoothing: 'antialiased',
       direction: 'ltr',
     };
 
@@ -71,4 +69,4 @@ const AppCanvas = React.createClass({
 
 });
 
-export default AppCanvas;
+module.exports = AppCanvas;

@@ -1,9 +1,9 @@
-import React from 'react';
+let React = require('react');
 
 const horizontal = React.PropTypes.oneOf(['left', 'middle', 'right']);
 const vertical = React.PropTypes.oneOf(['top', 'center', 'bottom']);
 
-export default {
+module.exports = {
 
   corners: React.PropTypes.oneOf([
     'bottom-left',
@@ -12,13 +12,13 @@ export default {
     'top-right',
   ]),
 
-  horizontal: horizontal,
-
-  vertical: vertical,
+  horizontal:horizontal,
+  
+  vertical:vertical,
 
   origin: React.PropTypes.shape({
-    horizontal: horizontal,
-    vertical: vertical,
+      horizontal: horizontal,
+      vertical:vertical,
   }),
 
   cornersAndCenter: React.PropTypes.oneOf([

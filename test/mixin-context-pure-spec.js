@@ -1,56 +1,43 @@
-import React from 'react';
+import React from 'react/addons';
 import ContextPure from 'mixins/context-pure';
 import ThemeManager from 'styles/theme-manager';
 import DefaultRawTheme from 'styles/raw-themes/light-raw-theme';
-import TestUtils from 'react-addons-test-utils';
-import update from 'react-addons-update';
+
+const TestUtils = React.addons.TestUtils;
+const update = React.addons.update;
 
 const GrandChildComponent = React.createClass({
+  mixins: [ContextPure],
 
   contextTypes: {
     muiTheme: React.PropTypes.object,
   },
-
-  mixins: [ContextPure],
 
   statics: {
     getRelevantContextKeys(muiTheme) {
       return {
         grandChildThemeProp: muiTheme.grandChildThemeProp,
-      };
+      }
     },
   },
 
   renderCount: 0,
 
-  getRenderCount() {
-    return this.renderCount;
-  },
-
   render() {
     this.renderCount++;
     return <div />;
   },
+
+  getRenderCount() {
+    return this.renderCount;
+  },
 });
 
 const ChildComponent = React.createClass({
-  contextTypes: {
-    muiTheme: React.PropTypes.object,
-  },
-
   mixins: [ContextPure],
 
-  statics: {
-    getRelevantContextKeys(muiTheme) {
-      return {
-        childThemeProp: muiTheme.childThemeProp,
-      };
-    },
-    getChildrenClasses() {
-      return [
-        GrandChildComponent,
-      ];
-    },
+  contextTypes: {
+    muiTheme: React.PropTypes.object,
   },
 
   getInitialState: function() {
@@ -59,7 +46,25 @@ const ChildComponent = React.createClass({
     };
   },
 
+  statics: {
+    getRelevantContextKeys(muiTheme) {
+      return {
+        childThemeProp: muiTheme.childThemeProp,
+      }
+    },
+    getChildrenClasses() {
+      return [
+        GrandChildComponent,
+      ];
+    },
+  },
+
   renderCount: 0,
+
+  render() {
+    this.renderCount++;
+    return <GrandChildComponent ref="grandChild" />;
+  },
 
   getGrandChildRenderCount() {
     return this.refs.grandChild.getRenderCount();
@@ -72,23 +77,19 @@ const ChildComponent = React.createClass({
   updateState(childState) {
     this.setState({childState});
   },
-
-  render() {
-    this.renderCount++;
-    return <GrandChildComponent ref="grandChild" />;
-  },
 });
 
 const ParentComponent = React.createClass({
-
-  propTypes: {
-    staticTheme: React.PropTypes.bool,
-  },
 
   childContextTypes: {
     muiTheme: React.PropTypes.object,
   },
 
+  propTypes: {
+    staticTheme: React.PropTypes.bool,
+  },
+
+  renderCount: 0,
 
   getDefaultProps: function() {
     return {
@@ -96,15 +97,15 @@ const ParentComponent = React.createClass({
     };
   },
 
-  getInitialState() {
-    return {
-      childProp: 0,
-    };
-  },
-
   getChildContext() {
     return {
       muiTheme: this.theme,
+    };
+  },
+
+  getInitialState() {
+    return {
+      childProp: 0,
     };
   },
 
@@ -115,7 +116,10 @@ const ParentComponent = React.createClass({
     this.theme.grandChildThemeProp = 0;
   },
 
-  renderCount: 0,
+  render() {
+    this.renderCount++;
+    return <ChildComponent ref="child" testProp={this.state.childProp} />;
+  },
 
   getChildRenderCount() {
     return this.refs.child.getRenderCount();
@@ -135,25 +139,20 @@ const ParentComponent = React.createClass({
 
   updateChildContextKey(childThemeProp) {
     this.theme = update(this.theme, {
-      childThemeProp: {$set: childThemeProp},
+      childThemeProp: { $set: childThemeProp },
     });
     this.forceUpdate();
   },
 
   updateGrandChildContextKey(grandChildThemeProp) {
     this.theme = update(this.theme, {
-      grandChildThemeProp: {$set: grandChildThemeProp},
+      grandChildThemeProp: { $set: grandChildThemeProp },
     });
     this.forceUpdate();
   },
 
   updateChildProp(childProp) {
     this.setState({childProp});
-  },
-
-  render() {
-    this.renderCount++;
-    return <ChildComponent ref="child" testProp={this.state.childProp} />;
   },
 });
 

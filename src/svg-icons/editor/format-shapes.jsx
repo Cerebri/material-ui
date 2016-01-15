@@ -1,6 +1,6 @@
-import React from 'react';
-import PureRenderMixin from 'react-addons-pure-render-mixin';
-import SvgIcon from '../../svg-icon';
+const React = require('react');
+const PureRenderMixin = require('react-addons-pure-render-mixin');
+const SvgIcon = require('../../svg-icon');
 
 const EditorFormatShapes = React.createClass({
 
@@ -16,4 +16,4 @@ const EditorFormatShapes = React.createClass({
 
 });
 
-export default EditorFormatShapes;
+module.exports = EditorFormatShapes;

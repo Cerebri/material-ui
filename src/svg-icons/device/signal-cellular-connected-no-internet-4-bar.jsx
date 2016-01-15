@@ -1,6 +1,6 @@
-import React from 'react';
-import PureRenderMixin from 'react-addons-pure-render-mixin';
-import SvgIcon from '../../svg-icon';
+const React = require('react');
+const PureRenderMixin = require('react-addons-pure-render-mixin');
+const SvgIcon = require('../../svg-icon');
 
 const DeviceSignalCellularConnectedNoInternet4Bar = React.createClass({
 
@@ -16,4 +16,4 @@ const DeviceSignalCellularConnectedNoInternet4Bar = React.createClass({
 
 });
 
-export default DeviceSignalCellularConnectedNoInternet4Bar;
+module.exports = DeviceSignalCellularConnectedNoInternet4Bar;

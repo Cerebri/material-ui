@@ -1,39 +1,21 @@
-import React from 'react';
-import StylePropable from '../mixins/style-propable';
-import DefaultRawTheme from '../styles/raw-themes/light-raw-theme';
-import ThemeManager from '../styles/theme-manager';
+const React = require('react');
+const StylePropable = require('../mixins/style-propable');
+const DefaultRawTheme = require('../styles/raw-themes/light-raw-theme');
+const ThemeManager = require('../styles/theme-manager');
 
 const GridList = React.createClass({
 
-  propTypes: {
-    /**
-     * Number of px for one cell height.
-     */
-    cellHeight: React.PropTypes.number,
-
-    /**
-     * Grid Tiles that will be in Grid List.
-     */
-    children: React.PropTypes.node,
-
-    /**
-     * Number of columns.
-     */
-    cols: React.PropTypes.number,
-
-    /**
-     * Number of px for the padding/spacing between items.
-     */
-    padding: React.PropTypes.number,
-
-    /**
-     * Override the inline-styles of the root element.
-     */
-    style: React.PropTypes.object,
-  },
+  mixins: [StylePropable],
 
   contextTypes: {
     muiTheme: React.PropTypes.object,
+  },
+
+  propTypes: {
+    cols: React.PropTypes.number,
+    padding: React.PropTypes.number,
+    cellHeight: React.PropTypes.number,
+    style: React.PropTypes.object,
   },
 
   //for passing default theme context to children
@@ -41,9 +23,11 @@ const GridList = React.createClass({
     muiTheme: React.PropTypes.object,
   },
 
-  mixins: [
-    StylePropable,
-  ],
+  getChildContext () {
+    return {
+      muiTheme: this.state.muiTheme,
+    };
+  },
 
   getDefaultProps() {
     return {
@@ -53,38 +37,34 @@ const GridList = React.createClass({
     };
   },
 
-  getInitialState() {
+  getInitialState () {
     return {
       muiTheme: this.context.muiTheme ? this.context.muiTheme : ThemeManager.getMuiTheme(DefaultRawTheme),
     };
   },
 
-  getChildContext() {
-    return {
-      muiTheme: this.state.muiTheme,
-    };
-  },
-
   //to update theme inside state whenever a new theme is passed down
   //from the parent / owner using context
-  componentWillReceiveProps(nextProps, nextContext) {
+  componentWillReceiveProps (nextProps, nextContext) {
     let newMuiTheme = nextContext.muiTheme ? nextContext.muiTheme : this.state.muiTheme;
     this.setState({muiTheme: newMuiTheme});
   },
 
-  getStyles() {
+  getStyles()
+  {
     return {
       root: {
-        display: 'flex',
+        display: '-webkit-box; display: -moz-box; display: -ms-flexbox; display: -webkit-flex; display: flex',
         flexWrap: 'wrap',
-        margin: -this.props.padding / 2,
+        margin: `-${this.props.padding/2}px`,
       },
       item: {
         boxSizing: 'border-box',
-        padding: this.props.padding / 2,
+        padding: `${this.props.padding/2}px`,
       },
     };
   },
+
 
   render() {
     const {
@@ -94,7 +74,7 @@ const GridList = React.createClass({
       children,
       style,
       ...other,
-    } = this.props;
+      } = this.props;
 
     const styles = this.getStyles();
 
@@ -117,4 +97,4 @@ const GridList = React.createClass({
   },
 });
 
-export default GridList;
+module.exports = GridList;

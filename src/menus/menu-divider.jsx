@@ -1,41 +1,60 @@
-import React from 'react';
-import Divider from '../divider';
-import {mergeStyles} from '../utils/styles';
-import warning from 'warning';
+const React = require('react');
+const StylePropable = require('../mixins/style-propable');
+const ListDivider = require('../lists/list-divider');
+const DefaultRawTheme = require('../styles/raw-themes/light-raw-theme');
+const ThemeManager = require('../styles/theme-manager');
 
 const MenuDivider = React.createClass({
 
+  mixins: [StylePropable],
+
+  contextTypes: {
+    muiTheme: React.PropTypes.object,
+  },
+
   propTypes: {
-    /**
-     * Override the inline-styles of the root element.
-     */
     style: React.PropTypes.object,
   },
 
-  getInitialState() {
-    warning(false, '<MenuDivider /> has been deprecated. Please use the <Divider /> component.');
-    return null;
+  //for passing default theme context to children
+  childContextTypes: {
+    muiTheme: React.PropTypes.object,
   },
 
-  getStyles() {
+  getChildContext () {
     return {
-      root: {
-        marginTop: 7,
-        marginBottom: 8,
-      },
+      muiTheme: this.state.muiTheme,
     };
   },
 
+  getInitialState () {
+    return {
+      muiTheme: this.context.muiTheme ? this.context.muiTheme : ThemeManager.getMuiTheme(DefaultRawTheme),
+    };
+  },
+
+  //to update theme inside state whenever a new theme is passed down
+  //from the parent / owner using context
+  componentWillReceiveProps (nextProps, nextContext) {
+    let newMuiTheme = nextContext.muiTheme ? nextContext.muiTheme : this.state.muiTheme;
+    this.setState({muiTheme: newMuiTheme});
+  },
+
   render() {
-    const {
+    let {
       style,
       ...other,
     } = this.props;
 
-    const styles = this.getStyles();
+    let mergedStyles = this.mergeStyles({
+      marginTop: 7,
+      marginBottom: 8,
+    }, style);
 
-    return <Divider {...this.props} style={mergeStyles(styles.root, style)} />;
+    return (
+      <ListDivider {...other} style={mergedStyles} />
+    );
   },
 });
 
-export default MenuDivider;
+module.exports = MenuDivider;

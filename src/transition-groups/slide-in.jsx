@@ -1,23 +1,14 @@
-import React from 'react';
-import ReactTransitionGroup from 'react-addons-transition-group';
-import StylePropable from '../mixins/style-propable';
-import SlideInChild from './slide-in-child';
-import DefaultRawTheme from '../styles/raw-themes/light-raw-theme';
-import ThemeManager from '../styles/theme-manager';
+const React = require('react');
+const ReactTransitionGroup = require('react-addons-transition-group');
+const StylePropable = require('../mixins/style-propable');
+const SlideInChild = require('./slide-in-child');
+const DefaultRawTheme = require('../styles/raw-themes/light-raw-theme');
+const ThemeManager = require('../styles/theme-manager');
+
 
 const SlideIn = React.createClass({
 
-  propTypes: {
-    childStyle: React.PropTypes.object,
-    children: React.PropTypes.node,
-    direction: React.PropTypes.oneOf(['left', 'right', 'up', 'down']),
-    enterDelay: React.PropTypes.number,
-
-    /**
-     * Override the inline-styles of the root element.
-     */
-    style: React.PropTypes.object,
-  },
+  mixins: [StylePropable],
 
   contextTypes: {
     muiTheme: React.PropTypes.object,
@@ -28,36 +19,37 @@ const SlideIn = React.createClass({
     muiTheme: React.PropTypes.object,
   },
 
-  mixins: [StylePropable],
+  getChildContext () {
+    return {
+      muiTheme: this.state.muiTheme,
+    };
+  },
+
+  getInitialState () {
+    return {
+      muiTheme: this.context.muiTheme ? this.context.muiTheme : ThemeManager.getMuiTheme(DefaultRawTheme),
+    };
+  },
+
+  //to update theme inside state whenever a new theme is passed down
+  //from the parent / owner using context
+  componentWillReceiveProps (nextProps, nextContext) {
+    let newMuiTheme = nextContext.muiTheme ? nextContext.muiTheme : this.state.muiTheme;
+    this.setState({muiTheme: newMuiTheme});
+  },
+
+  propTypes: {
+    enterDelay: React.PropTypes.number,
+    childStyle: React.PropTypes.object,
+    direction: React.PropTypes.oneOf(['left', 'right', 'up', 'down']),
+    style: React.PropTypes.object,
+  },
 
   getDefaultProps() {
     return {
       enterDelay: 0,
       direction: 'left',
     };
-  },
-
-  getInitialState() {
-    return {
-      muiTheme: this.context.muiTheme ? this.context.muiTheme : ThemeManager.getMuiTheme(DefaultRawTheme),
-    };
-  },
-
-  getChildContext() {
-    return {
-      muiTheme: this.state.muiTheme,
-    };
-  },
-
-  //to update theme inside state whenever a new theme is passed down
-  //from the parent / owner using context
-  componentWillReceiveProps(nextProps, nextContext) {
-    let newMuiTheme = nextContext.muiTheme ? nextContext.muiTheme : this.state.muiTheme;
-    this.setState({muiTheme: newMuiTheme});
-  },
-
-  _getLeaveDirection() {
-    return this.props.direction;
   },
 
   render() {
@@ -70,7 +62,7 @@ const SlideIn = React.createClass({
       ...other,
     } = this.props;
 
-    let mergedRootStyles = this.mergeStyles({
+    let mergedRootStyles = this.prepareStyles({
       position: 'relative',
       overflow: 'hidden',
       height: '100%',
@@ -92,13 +84,17 @@ const SlideIn = React.createClass({
     return (
       <ReactTransitionGroup
         {...other}
-        style={this.prepareStyles(mergedRootStyles)}
+        style={mergedRootStyles}
         component="div">
         {newChildren}
       </ReactTransitionGroup>
     );
   },
 
+  _getLeaveDirection() {
+    return this.props.direction;
+  },
+
 });
 
-export default SlideIn;
+module.exports = SlideIn;

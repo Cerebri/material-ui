@@ -1,32 +1,26 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import PureRenderMixin from 'react-addons-pure-render-mixin';
-import StylePropable from '../mixins/style-propable';
-import AutoPrefix from '../styles/auto-prefix';
-import Colors from '../styles/colors';
-import Transitions from '../styles/transitions';
-import ScaleInTransitionGroup from '../transition-groups/scale-in';
+const React = require('react');
+const ReactDOM = require('react-dom');
+const PureRenderMixin = require('react-addons-pure-render-mixin');
+const StylePropable = require('../mixins/style-propable');
+const AutoPrefix = require('../styles/auto-prefix');
+const Colors = require('../styles/colors');
+const Transitions = require('../styles/transitions');
+const ScaleInTransitionGroup = require('../transition-groups/scale-in');
 
 const pulsateDuration = 750;
 
+
 const FocusRipple = React.createClass({
+
+  mixins: [PureRenderMixin, StylePropable],
 
   propTypes: {
     color: React.PropTypes.string,
     innerStyle: React.PropTypes.object,
     opacity: React.PropTypes.number,
     show: React.PropTypes.bool,
-
-    /**
-     * Override the inline-styles of the root element.
-     */
     style: React.PropTypes.object,
   },
-
-  mixins: [
-    PureRenderMixin,
-    StylePropable,
-  ],
 
   getDefaultProps() {
     return {
@@ -50,6 +44,32 @@ const FocusRipple = React.createClass({
     }
   },
 
+  render() {
+
+    const {
+      show,
+      style,
+    } = this.props;
+
+    const mergedRootStyles = this.mergeStyles({
+      height: '100%',
+      width: '100%',
+      position: 'absolute',
+      top: 0,
+      left: 0,
+    }, style);
+
+    const ripple = show ? this._getRippleElement(this.props) : null;
+
+    return (
+      <ScaleInTransitionGroup
+        maxScale={0.85}
+        style={mergedRootStyles}>
+        {ripple}
+      </ScaleInTransitionGroup>
+    );
+  },
+
   _getRippleElement(props) {
     const {
       color,
@@ -57,7 +77,7 @@ const FocusRipple = React.createClass({
       opacity,
     } = props;
 
-    const innerStyles = this.mergeStyles({
+    const innerStyles = this.mergeAndPrefix({
       position: 'absolute',
       height: '100%',
       width: '100%',
@@ -67,7 +87,7 @@ const FocusRipple = React.createClass({
       transition: Transitions.easeOut(pulsateDuration + 'ms', 'transform', null, Transitions.easeInOutFunction),
     }, innerStyle);
 
-    return <div ref="innerCircle" style={this.prepareStyles(innerStyles)} />;
+    return <div ref="innerCircle" style={innerStyles} />;
   },
 
   _pulsate() {
@@ -104,30 +124,6 @@ const FocusRipple = React.createClass({
     el.style.top = (height / 2) - (size / 2 ) + oldTop + 'px';
   },
 
-  render() {
-    const {
-      show,
-      style,
-    } = this.props;
-
-    const mergedRootStyles = this.mergeStyles({
-      height: '100%',
-      width: '100%',
-      position: 'absolute',
-      top: 0,
-      left: 0,
-    }, style);
-
-    const ripple = show ? this._getRippleElement(this.props) : null;
-
-    return (
-      <ScaleInTransitionGroup
-        maxScale={0.85}
-        style={mergedRootStyles}>
-        {ripple}
-      </ScaleInTransitionGroup>
-    );
-  },
 });
 
-export default FocusRipple;
+module.exports = FocusRipple;

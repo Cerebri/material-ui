@@ -1,100 +1,53 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import TabTemplate from './tabTemplate';
-import InkBar from '../ink-bar';
-import StylePropable from '../mixins/style-propable';
-import Controllable from '../mixins/controllable';
-import DefaultRawTheme from '../styles/raw-themes/light-raw-theme';
-import ThemeManager from '../styles/theme-manager';
-import warning from 'warning';
+const React = require('react');
+const ReactDOM = require('react-dom');
+const TabTemplate = require('./tabTemplate');
+const InkBar = require('../ink-bar');
+const StylePropable = require('../mixins/style-propable');
+const Controllable = require('../mixins/controllable');
+const DefaultRawTheme = require('../styles/raw-themes/light-raw-theme');
+const ThemeManager = require('../styles/theme-manager');
 
 const Tabs = React.createClass({
 
-  propTypes: {
-    /**
-     * Should be used to pass `Tab` components.
-     */
-    children: React.PropTypes.node,
-
-    /**
-     * The css class name of the root element.
-     */
-    className: React.PropTypes.string,
-
-    /**
-     * The css class name of the content's container.
-     */
-    contentContainerClassName: React.PropTypes.string,
-
-    /**
-     * Override the inline-styles of the content's container.
-     */
-    contentContainerStyle: React.PropTypes.object,
-
-    /**
-     * Specify initial visible tab index.
-     * Initial selected index is set by default to 0.
-     * If initialSelectedIndex is set but larger than the total amount of specified tabs,
-     * initialSelectedIndex will revert back to default.
-     */
-    initialSelectedIndex: React.PropTypes.number,
-
-    /**
-     * Override the inline-styles of the InkBar.
-     */
-    inkBarStyle: React.PropTypes.object,
-
-    /**
-     * Called when the selected value change.
-     */
-    onChange: React.PropTypes.func,
-
-    /**
-     * Override the inline-styles of the root element.
-     */
-    style: React.PropTypes.object,
-
-    /**
-     * Override the inline-styles of the tab-labels container.
-     */
-    tabItemContainerStyle: React.PropTypes.object,
-
-    /**
-     * Override the default tab template used to wrap the content of each tab element.
-     */
-    tabTemplate: React.PropTypes.func,
-
-    /**
-     * Makes Tabs controllable and selects the tab whose value prop matches this prop.
-     */
-    value: React.PropTypes.any,
-  },
+  mixins: [StylePropable, Controllable],
 
   contextTypes: {
     muiTheme: React.PropTypes.object,
   },
 
+  propTypes: {
+    contentContainerStyle: React.PropTypes.object,
+    initialSelectedIndex: React.PropTypes.number,
+    inkBarStyle: React.PropTypes.object,
+    tabItemContainerStyle: React.PropTypes.object,
+    tabTemplate: React.PropTypes.func,
+    style: React.PropTypes.object,
+  },
+
+  //for passing default theme context to children
   childContextTypes: {
     muiTheme: React.PropTypes.object,
   },
 
-  mixins: [
-    StylePropable,
-    Controllable,
-  ],
-
-  getDefaultProps() {
+  getChildContext () {
     return {
-      initialSelectedIndex: 0,
+      muiTheme: this.state.muiTheme,
     };
   },
 
-  getInitialState() {
+  getDefaultProps() {
+    return {
+      initialSelectedIndex : 0,
+      tabTemplate: TabTemplate,
+    };
+  },
+
+  getInitialState(){
     let valueLink = this.getValueLink(this.props);
     let initialIndex = this.props.initialSelectedIndex;
 
     return {
-      selectedIndex: valueLink.value !== undefined ?
+      selectedIndex: valueLink.value ?
         this._getSelectedIndex(this.props) :
         initialIndex < this.getTabCount() ?
         initialIndex :
@@ -103,24 +56,7 @@ const Tabs = React.createClass({
     };
   },
 
-  getChildContext() {
-    return {
-      muiTheme: this.state.muiTheme,
-    };
-  },
-
-  componentWillReceiveProps(newProps, nextContext) {
-    const valueLink = this.getValueLink(newProps);
-    const newMuiTheme = nextContext.muiTheme ? nextContext.muiTheme : this.state.muiTheme;
-
-    if (valueLink.value !== undefined) {
-      this.setState({selectedIndex: this._getSelectedIndex(newProps)});
-    }
-
-    this.setState({muiTheme: newMuiTheme});
-  },
-
-  getEvenWidth() {
+  getEvenWidth(){
     return (
       parseInt(window
         .getComputedStyle(ReactDOM.findDOMNode(this))
@@ -132,49 +68,25 @@ const Tabs = React.createClass({
     return React.Children.count(this.props.children);
   },
 
-  _getSelectedIndex(props) {
-    let valueLink = this.getValueLink(props);
-    let selectedIndex = -1;
+  componentWillReceiveProps(newProps, nextContext) {
+    let valueLink = this.getValueLink(newProps);
+    let newMuiTheme = nextContext.muiTheme ? nextContext.muiTheme : this.state.muiTheme;
 
-    React.Children.forEach(props.children, (tab, index) => {
-      if (valueLink.value === tab.props.value) {
-        selectedIndex = index;
-      }
-    });
-
-    return selectedIndex;
-  },
-
-  _handleTabTouchTap(value, e, tab) {
-    let valueLink = this.getValueLink(this.props);
-    let tabIndex = tab.props.tabIndex;
-
-    if ((valueLink.value && valueLink.value !== value) ||
-      this.state.selectedIndex !== tabIndex) {
-      valueLink.requestChange(value, e, tab);
+    if (valueLink.value){
+      this.setState({selectedIndex: this._getSelectedIndex(newProps)});
     }
 
-    this.setState({selectedIndex: tabIndex});
-
-    if (tab.props.onActive) {
-      tab.props.onActive(tab);
-    }
-  },
-
-  _getSelected(tab, index) {
-    let valueLink = this.getValueLink(this.props);
-    return valueLink.value ? valueLink.value === tab.props.value :
-      this.state.selectedIndex === index;
+    this.setState({muiTheme: newMuiTheme});
   },
 
   render() {
     let {
       children,
-      contentContainerClassName,
       contentContainerStyle,
       initialSelectedIndex,
       inkBarStyle,
       style,
+      tabWidth,
       tabItemContainerStyle,
       tabTemplate,
       ...other,
@@ -197,44 +109,47 @@ const Tabs = React.createClass({
     let tabValue = valueLink.value;
     let tabContent = [];
 
-    let width = 100 / this.getTabCount() + '%';
+    let width = 100 / this.getTabCount() +'%';
 
     let left = 'calc(' + width + '*' + this.state.selectedIndex + ')';
 
     let tabs = React.Children.map(children, (tab, index) => {
-      warning(tab.type && tab.type.displayName === 'Tab',
-        `Tabs only accepts Tab Components as children.
-        Found ${tab.type.displayName || tab.type} as child number ${index + 1} of Tabs`);
+      if (tab.type.displayName === "Tab") {
+        if (!tab.props.value && tabValue && process.env.NODE_ENV !== 'production') {
+          console.error('Tabs value prop has been passed, but Tab ' + index +
+          ' does not have a value prop. Needs value if Tabs is going' +
+          ' to be a controlled component.');
+        }
 
-      warning(!tabValue || tab.props.value !== undefined,
-        `Tabs value prop has been passed, but Tab ${index}
-        does not have a value prop. Needs value if Tabs is going
-        to be a controlled component.`);
+        tabContent.push(tab.props.children ?
+          React.createElement(tabTemplate, {
+            key: index,
+            selected: this._getSelected(tab, index),
+          }, tab.props.children) : undefined);
 
-      tabContent.push(tab.props.children ?
-        React.createElement(tabTemplate || TabTemplate, {
+        return React.cloneElement(tab, {
           key: index,
           selected: this._getSelected(tab, index),
-        }, tab.props.children) : undefined);
+          tabIndex: index,
+          width: width,
+          onTouchTap: this._handleTabTouchTap,
+        });
+      }
+      else {
+        let type = tab.type.displayName || tab.type;
+        console.error('Tabs only accepts Tab Components as children. Found ' +
+              type + ' as child number ' + (index + 1) + ' of Tabs');
+      }
+    }, this);
 
-      return React.cloneElement(tab, {
-        key: index,
-        selected: this._getSelected(tab, index),
-        tabIndex: index,
-        width: width,
-        onTouchTap: this._handleTabTouchTap,
-      });
-    });
-
-    const inkBar = this.state.selectedIndex !== -1 ? (
+    let inkBar = this.state.selectedIndex !== -1 ? (
       <InkBar
         left={left}
         width={width}
-        style={inkBarStyle}
-      />
+        style={inkBarStyle}/>
     ) : null;
 
-    const inkBarContainerWidth = tabItemContainerStyle ?
+    let inkBarContainerWidth = tabItemContainerStyle ?
       tabItemContainerStyle.width : '100%';
 
     return (
@@ -247,15 +162,45 @@ const Tabs = React.createClass({
         <div style={{width: inkBarContainerWidth}}>
          {inkBar}
         </div>
-        <div
-          style={this.prepareStyles(contentContainerStyle)}
-          className={contentContainerClassName}
-        >
+        <div style={this.prepareStyles(contentContainerStyle)}>
           {tabContent}
         </div>
       </div>
     );
   },
+
+  _getSelectedIndex(props) {
+    let valueLink = this.getValueLink(props);
+    let selectedIndex = -1;
+
+    React.Children.forEach(props.children, (tab, index) => {
+      if (valueLink.value === tab.props.value) {
+        selectedIndex = index;
+      }
+    });
+
+    return selectedIndex;
+  },
+
+  _handleTabTouchTap(value, e, tab){
+    let valueLink = this.getValueLink(this.props);
+    let tabIndex = tab.props.tabIndex;
+
+    if ((valueLink.value && valueLink.value !== value) ||
+      this.state.selectedIndex !== tabIndex) {
+      valueLink.requestChange(value, e, tab);
+    }
+
+    this.setState({selectedIndex: tabIndex});
+    tab.props.onActive(tab);
+  },
+
+  _getSelected(tab, index) {
+    let valueLink = this.getValueLink(this.props);
+    return valueLink.value ? valueLink.value === tab.props.value :
+      this.state.selectedIndex === index;
+  },
+
 });
 
-export default Tabs;
+module.exports = Tabs;

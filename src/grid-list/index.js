@@ -1,10 +1,4 @@
-import GridList from './grid-list';
-import GridTile from './grid-tile';
-
-export {GridList};
-export {GridTile};
-
-export default {
-  GridList,
-  GridTile,
+module.exports = {
+  GridList: require('./grid-list'),
+  GridTile: require('./grid-tile'),
 };

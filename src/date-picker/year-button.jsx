@@ -1,23 +1,21 @@
-import React from 'react';
-import StylePropable from '../mixins/style-propable';
-import EnhancedButton from '../enhanced-button';
-import DefaultRawTheme from '../styles/raw-themes/light-raw-theme';
-import ThemeManager from '../styles/theme-manager';
+const React = require('react');
+const StylePropable = require('../mixins/style-propable');
+const EnhancedButton = require('../enhanced-button');
+const DefaultRawTheme = require('../styles/raw-themes/light-raw-theme');
+const ThemeManager = require('../styles/theme-manager');
 
 const YearButton = React.createClass({
 
-  propTypes: {
-    /**
-     * The css class name of the root element.
-     */
-    className: React.PropTypes.string,
-    onTouchTap: React.PropTypes.func,
-    selected: React.PropTypes.bool,
-    year: React.PropTypes.number,
-  },
+  mixins: [StylePropable],
 
   contextTypes: {
     muiTheme: React.PropTypes.object,
+  },
+
+  propTypes: {
+    year: React.PropTypes.number,
+    onTouchTap: React.PropTypes.func,
+    selected: React.PropTypes.bool,
   },
 
   //for passing default theme context to children
@@ -25,9 +23,11 @@ const YearButton = React.createClass({
     muiTheme: React.PropTypes.object,
   },
 
-  mixins: [
-    StylePropable,
-  ],
+  getChildContext () {
+    return {
+      muiTheme: this.state.muiTheme,
+    };
+  },
 
   getDefaultProps() {
     return {
@@ -42,33 +42,15 @@ const YearButton = React.createClass({
     };
   },
 
-  getChildContext() {
-    return {
-      muiTheme: this.state.muiTheme,
-    };
-  },
-
   //to update theme inside state whenever a new theme is passed down
   //from the parent / owner using context
-  componentWillReceiveProps(nextProps, nextContext) {
+  componentWillReceiveProps (nextProps, nextContext) {
     let newMuiTheme = nextContext.muiTheme ? nextContext.muiTheme : this.state.muiTheme;
     this.setState({muiTheme: newMuiTheme});
   },
 
   getTheme() {
     return this.state.muiTheme.datePicker;
-  },
-
-  _handleMouseEnter() {
-    this.setState({hover: true});
-  },
-
-  _handleMouseLeave() {
-    this.setState({hover: false});
-  },
-
-  _handleTouchTap(e) {
-    if (this.props.onTouchTap) this.props.onTouchTap(e, this.props.year);
   },
 
   render() {
@@ -139,6 +121,18 @@ const YearButton = React.createClass({
     );
   },
 
+  _handleMouseEnter() {
+    this.setState({hover: true});
+  },
+
+  _handleMouseLeave() {
+    this.setState({hover: false});
+  },
+
+  _handleTouchTap(e) {
+    if (this.props.onTouchTap) this.props.onTouchTap(e, this.props.year);
+  },
+
 });
 
-export default YearButton;
+module.exports = YearButton;

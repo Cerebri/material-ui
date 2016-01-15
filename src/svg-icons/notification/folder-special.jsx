@@ -1,6 +1,6 @@
-import React from 'react';
-import PureRenderMixin from 'react-addons-pure-render-mixin';
-import SvgIcon from '../../svg-icon';
+const React = require('react');
+const PureRenderMixin = require('react-addons-pure-render-mixin');
+const SvgIcon = require('../../svg-icon');
 
 const NotificationFolderSpecial = React.createClass({
 
@@ -16,4 +16,4 @@ const NotificationFolderSpecial = React.createClass({
 
 });
 
-export default NotificationFolderSpecial;
+module.exports = NotificationFolderSpecial;

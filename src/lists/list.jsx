@@ -1,49 +1,26 @@
-import React from 'react';
-import PureRenderMixin from 'react-addons-pure-render-mixin';
-import PropTypes from '../utils/prop-types';
-import StylePropable from '../mixins/style-propable';
-import Typography from '../styles/typography';
-import Paper from '../paper';
-import DefaultRawTheme from '../styles/raw-themes/light-raw-theme';
-import ThemeManager from '../styles/theme-manager';
+const React = require('react');
+const PureRenderMixin = require('react-addons-pure-render-mixin');
+const PropTypes = require('../utils/prop-types');
+const StylePropable = require('../mixins/style-propable');
+const Typography = require('../styles/typography');
+const Paper = require('../paper');
+const DefaultRawTheme = require('../styles/raw-themes/light-raw-theme');
+const ThemeManager = require('../styles/theme-manager');
 
 const List = React.createClass({
 
-  propTypes: {
-    /**
-     * These are usually ListItems that are passed to
-     * be part of the list.
-     */
-    children: React.PropTypes.node,
-
-    /**
-     * If true, the subheader will be indented by 72px.
-     */
-    insetSubheader: React.PropTypes.bool,
-
-    /**
-     * Override the inline-styles of the root element.
-     */
-    style: React.PropTypes.object,
-
-    /**
-     * The subheader string that will be displayed at the top of the list.
-     */
-    subheader: React.PropTypes.node,
-
-    /**
-     * The style object to override subheader styles.
-     */
-    subheaderStyle: React.PropTypes.object,
-
-    /**
-     * The zDepth prop passed to the Paper element inside list.
-     */
-    zDepth: PropTypes.zDepth,
-  },
+  mixins: [PureRenderMixin, StylePropable],
 
   contextTypes: {
     muiTheme: React.PropTypes.object,
+  },
+
+  propTypes: {
+    insetSubheader: React.PropTypes.bool,
+    style: React.PropTypes.object,
+    subheader: React.PropTypes.node,
+    subheaderStyle: React.PropTypes.object,
+    zDepth: PropTypes.zDepth,
   },
 
   //for passing default theme context to children
@@ -51,33 +28,27 @@ const List = React.createClass({
     muiTheme: React.PropTypes.object,
   },
 
-  mixins: [
-    PureRenderMixin,
-    StylePropable,
-  ],
-
-  getDefaultProps() {
-    return {
-      insetSubheader: false,
-      zDepth: 0,
-    };
-  },
-
-  getInitialState() {
-    return {
-      muiTheme: this.context.muiTheme ? this.context.muiTheme : ThemeManager.getMuiTheme(DefaultRawTheme),
-    };
-  },
-
-  getChildContext() {
+  getChildContext () {
     return {
       muiTheme: this.state.muiTheme,
     };
   },
 
+  getDefaultProps() {
+    return {
+      zDepth: 0,
+    };
+  },
+
+  getInitialState () {
+    return {
+      muiTheme: this.context.muiTheme ? this.context.muiTheme : ThemeManager.getMuiTheme(DefaultRawTheme),
+    };
+  },
+
   //to update theme inside state whenever a new theme is passed down
   //from the parent / owner using context
-  componentWillReceiveProps(nextProps, nextContext) {
+  componentWillReceiveProps (nextProps, nextContext) {
     let newMuiTheme = nextContext.muiTheme ? nextContext.muiTheme : this.state.muiTheme;
     this.setState({muiTheme: newMuiTheme});
   },
@@ -111,8 +82,8 @@ const List = React.createClass({
 
     let subheaderElement;
     if (subheader) {
-      const mergedSubheaderStyles = this.mergeStyles(styles.subheader, subheaderStyle);
-      subheaderElement = <div style={this.prepareStyles(mergedSubheaderStyles)}>{subheader}</div>;
+      const mergedSubheaderStyles = this.prepareStyles(styles.subheader, subheaderStyle);
+      subheaderElement = <div style={mergedSubheaderStyles}>{subheader}</div>;
     }
 
     return (
@@ -127,4 +98,4 @@ const List = React.createClass({
   },
 });
 
-export default List;
+module.exports = List;

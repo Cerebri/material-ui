@@ -1,70 +1,25 @@
-import React from 'react';
-import Paper from '../paper';
-import StylePropable from '../mixins/style-propable';
-import CardExpandable from './card-expandable';
+const React = require('react');
+const Paper = require('../paper');
+const StylePropable = require('../mixins/style-propable');
+const CardExpandable = require('./card-expandable');
 
 const Card = React.createClass({
-
-  propTypes: {
-    /**
-     * Whether a click on this card component expands the card. Can be set on any child of the Card component.
-     */
-    actAsExpander: React.PropTypes.bool,
-
-    /**
-     * Can be used to render elements inside the Card.
-     */
-    children: React.PropTypes.node,
-
-    /**
-     * Whether this card component is expandable. Can be set on any child of the Card component.
-     */
-    expandable: React.PropTypes.bool,
-
-    /**
-     * Whether this card is initially expanded.
-     */
-    initiallyExpanded: React.PropTypes.bool,
-
-    /**
-     * Fired when the expandable state changes.
-     */
-    onExpandChange: React.PropTypes.func,
-
-    /**
-     * Whether this card component include a button to expand the card. CardTitle,
-     * CardHeader and CardActions implement showExpandableButton. Any child component
-     * of Card can implements showExpandableButton or forwards the property to a child
-     * component supporting it.
-     */
-    showExpandableButton: React.PropTypes.bool,
-
-    /**
-     * Override the inline-styles of the root element.
-     */
-    style: React.PropTypes.object,
-  },
-
-  mixins: [
-    StylePropable,
-  ],
-
-  getDefaultProps() {
-    return {
-      expandable: false,
-      initiallyExpanded: false,
-      actAsExpander: false,
-    };
-  },
+  mixins:[StylePropable],
 
   getInitialState() {
-    return {
-      expanded: this.props.initiallyExpanded ? true : false,
-    };
+    return { expanded: this.props.initiallyExpanded ? true : false };
   },
 
-  _onExpandable(event) {
-    event.preventDefault();
+  propTypes: {
+    style: React.PropTypes.object,
+    expandable: React.PropTypes.bool,
+    initiallyExpanded: React.PropTypes.bool,
+    onExpandChange: React.PropTypes.func,
+    actAsExpander: React.PropTypes.bool,
+    showExpandableButton: React.PropTypes.bool,
+  },
+
+  _onExpandable() {
     let newExpandedState = !(this.state.expanded === true);
     this.setState({expanded: newExpandedState});
     if (this.props.onExpandChange)
@@ -86,7 +41,7 @@ const Card = React.createClass({
       if (currentChild.props.actAsExpander === true) {
         doClone = true;
         newProps.onTouchTap = this._onExpandable;
-        newProps.style = this.mergeStyles({cursor: 'pointer'}, currentChild.props.style);
+        newProps.style = this.mergeStyles({ cursor: 'pointer' }, currentChild.props.style);
       }
       if (currentChild.props.showExpandableButton === true) {
         doClone = true;
@@ -100,8 +55,8 @@ const Card = React.createClass({
 
     // If the last element is text or a title we should add
     // 8px padding to the bottom of the card
-    let addBottomPadding = (lastElement && (lastElement.type.displayName === 'CardText' ||
-      lastElement.type.displayName === 'CardTitle'));
+    let addBottomPadding = (lastElement && (lastElement.type.displayName === "CardText" ||
+      lastElement.type.displayName === "CardTitle"));
     let {
       style,
       ...other,
@@ -122,4 +77,4 @@ const Card = React.createClass({
   },
 });
 
-export default Card;
+module.exports = Card;

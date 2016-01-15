@@ -1,7 +1,7 @@
-import React from 'react';
-import createFragment from 'react-addons-create-fragment';
+const React = require('react');
+const createFragment = require('react-addons-create-fragment');
 
-export default {
+module.exports = {
 
   create(fragments) {
     let newFragments = {};
@@ -29,10 +29,10 @@ export default {
     return React.isValidElement(children) ?
       React.Children.map(children, (child) => {
 
-        const newProps = typeof (extendedProps) === 'function' ?
+        const newProps = typeof(extendedProps) === 'function' ?
           extendedProps(child) : extendedProps;
 
-        const newChildren = typeof (extendedChildren) === 'function' ?
+        const newChildren = typeof(extendedChildren) === 'function' ?
           extendedChildren(child) : extendedChildren ?
           extendedChildren : child.props.children;
 

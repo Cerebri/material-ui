@@ -1,16 +1,16 @@
-import React from 'react';
+const React = require('react');
 
-export default (customTheme) => {
+module.exports = (customTheme) => {
 
   return function(Component) {
 
     return React.createClass({
 
-      childContextTypes: {
+      childContextTypes : {
         muiTheme: React.PropTypes.object,
       },
 
-      getChildContext() {
+      getChildContext () {
         return {
           muiTheme: customTheme,
         };
@@ -22,4 +22,4 @@ export default (customTheme) => {
     });
 
   };
-};
+}

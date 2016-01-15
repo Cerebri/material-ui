@@ -1,6 +1,6 @@
-import React from 'react';
-import PureRenderMixin from 'react-addons-pure-render-mixin';
-import SvgIcon from '../../svg-icon';
+const React = require('react');
+const PureRenderMixin = require('react-addons-pure-render-mixin');
+const SvgIcon = require('../../svg-icon');
 
 const ActionFlipToFront = React.createClass({
 
@@ -16,4 +16,4 @@ const ActionFlipToFront = React.createClass({
 
 });
 
-export default ActionFlipToFront;
+module.exports = ActionFlipToFront;

@@ -1,21 +1,23 @@
-import React from 'react';
-import StylePropable from '../mixins/style-propable';
-import Typography from '../styles/typography';
-import DefaultRawTheme from '../styles/raw-themes/light-raw-theme';
-import ThemeManager from '../styles/theme-manager';
+const React = require('react');
+const StylePropable = require('../mixins/style-propable');
+const Typography = require('../styles/typography');
+const DefaultRawTheme = require('../styles/raw-themes/light-raw-theme');
+const ThemeManager = require('../styles/theme-manager');
 
 const SubheaderMenuItem = React.createClass({
 
-  propTypes: {
-    className: React.PropTypes.string,
-    firstChild: React.PropTypes.bool,
-    index: React.PropTypes.number.isRequired,
-    style: React.PropTypes.object,
-    text: React.PropTypes.string.isRequired,
-  },
+  mixins: [StylePropable],
 
   contextTypes: {
     muiTheme: React.PropTypes.object,
+  },
+
+  propTypes: {
+      index: React.PropTypes.number.isRequired,
+      text: React.PropTypes.string.isRequired,
+      firstChild: React.PropTypes.bool,
+      className: React.PropTypes.string,
+      style: React.PropTypes.object,
   },
 
   //for passing default theme context to children
@@ -23,25 +25,21 @@ const SubheaderMenuItem = React.createClass({
     muiTheme: React.PropTypes.object,
   },
 
-  mixins: [
-    StylePropable,
-  ],
-
-  getInitialState() {
-    return {
-      muiTheme: this.context.muiTheme ? this.context.muiTheme : ThemeManager.getMuiTheme(DefaultRawTheme),
-    };
-  },
-
-  getChildContext() {
+  getChildContext () {
     return {
       muiTheme: this.state.muiTheme,
     };
   },
 
+  getInitialState () {
+    return {
+      muiTheme: this.context.muiTheme ? this.context.muiTheme : ThemeManager.getMuiTheme(DefaultRawTheme),
+    };
+  },
+
   //to update theme inside state whenever a new theme is passed down
   //from the parent / owner using context
-  componentWillReceiveProps(nextProps, nextContext) {
+  componentWillReceiveProps (nextProps, nextContext) {
     let newMuiTheme = nextContext.muiTheme ? nextContext.muiTheme : this.state.muiTheme;
     this.setState({muiTheme: newMuiTheme});
   },
@@ -84,19 +82,19 @@ const SubheaderMenuItem = React.createClass({
 
   render() {
     return (
-      <div
-        key={this.props.index}
-        className={this.props.className}
-        style={this.prepareStyles(
-          this.getStyles().root,
-          this.props.firstChild && this.getStyles().rootWhenFirstChild,
-          this.props.style
-        )}>
-          {this.props.text}
-      </div>
+        <div
+          key={this.props.index}
+          className={this.props.className}
+          style={this.prepareStyles(
+            this.getStyles().root,
+            this.props.firstChild && this.getStyles().rootWhenFirstChild,
+            this.props.style
+          )}>
+            {this.props.text}
+        </div>
     );
   },
 
 });
 
-export default SubheaderMenuItem;
+module.exports = SubheaderMenuItem;

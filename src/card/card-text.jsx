@@ -1,21 +1,13 @@
-import React from 'react';
-import StylePropable from '../mixins/style-propable';
-import ThemeManager from '../styles/theme-manager';
-import DefaultRawTheme from '../styles/raw-themes/light-raw-theme';
+const React = require('react');
+const Styles = require('../styles');
+const StylePropable = require('../mixins/style-propable');
+const ThemeManager = require('../styles/theme-manager');
+const DefaultRawTheme = require('../styles/raw-themes/light-raw-theme');
+
 
 const CardText = React.createClass({
 
-  propTypes: {
-    actAsExpander: React.PropTypes.bool,
-    children: React.PropTypes.node,
-    color: React.PropTypes.string,
-    expandable: React.PropTypes.bool,
-
-    /**
-     * Override the inline-styles of the root element.
-     */
-    style: React.PropTypes.object,
-  },
+  mixins:[StylePropable],
 
   contextTypes: {
     muiTheme: React.PropTypes.object,
@@ -26,9 +18,11 @@ const CardText = React.createClass({
     muiTheme: React.PropTypes.object,
   },
 
-  mixins: [
-    StylePropable,
-  ],
+  getChildContext () {
+    return {
+      muiTheme: this.state.muiTheme,
+    };
+  },
 
   getInitialState() {
     return {
@@ -36,17 +30,18 @@ const CardText = React.createClass({
     };
   },
 
-  getChildContext() {
-    return {
-      muiTheme: this.state.muiTheme,
-    };
-  },
-
   //to update theme inside state whenever a new theme is passed down
   //from the parent / owner using context
-  componentWillReceiveProps(nextProps, nextContext) {
+  componentWillReceiveProps (nextProps, nextContext) {
     let newMuiTheme = nextContext.muiTheme ? nextContext.muiTheme : this.state.muiTheme;
     this.setState({muiTheme: newMuiTheme});
+  },
+
+  propTypes: {
+    color: React.PropTypes.string,
+    style: React.PropTypes.object,
+    expandable: React.PropTypes.bool,
+    actAsExpander: React.PropTypes.bool,
   },
 
   getStyles() {
@@ -62,14 +57,14 @@ const CardText = React.createClass({
 
   render() {
     let styles = this.getStyles();
-    let rootStyle = this.mergeStyles(styles.root, this.props.style);
+    let rootStyle = this.prepareStyles(styles.root, this.props.style);
 
     return (
-      <div {...this.props} style={this.prepareStyles(rootStyle)}>
+      <div {...this.props} style={rootStyle}>
         {this.props.children}
       </div>
     );
   },
 });
 
-export default CardText;
+module.exports = CardText;

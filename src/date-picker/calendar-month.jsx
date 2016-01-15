@@ -1,18 +1,33 @@
-import React from 'react';
-import DateTime from '../utils/date-time';
-import DayButton from './day-button';
-import ClearFix from '../clearfix';
+const React = require('react');
+const DateTime = require('../utils/date-time');
+const DayButton = require('./day-button');
+const ClearFix = require('../clearfix');
+
 
 const CalendarMonth = React.createClass({
 
   propTypes: {
-    autoOk: React.PropTypes.bool,
     displayDate: React.PropTypes.object.isRequired,
+    selectedDate: React.PropTypes.object.isRequired,
+    autoOk: React.PropTypes.bool,
     maxDate: React.PropTypes.object,
     minDate: React.PropTypes.object,
     onDayTouchTap: React.PropTypes.func,
-    selectedDate: React.PropTypes.object.isRequired,
     shouldDisableDate: React.PropTypes.func,
+  },
+
+  render() {
+    let styles = {
+      lineHeight: '32px',
+      textAlign: 'center',
+      padding: '16px 14px 0 14px',
+    };
+
+    return (
+      <div style={styles}>
+        {this._getWeekElements()}
+      </div>
+    );
   },
 
   isSelectedDateDisabled() {
@@ -40,7 +55,8 @@ const CalendarMonth = React.createClass({
       if (isSameDate) {
         if (disabled) {
           this._selectedDateDisabled = true;
-        } else {
+        }
+        else {
           this._selectedDateDisabled = false;
         }
       }
@@ -68,20 +84,6 @@ const CalendarMonth = React.createClass({
     return disabled;
   },
 
-  render() {
-    let styles = {
-      lineHeight: '32px',
-      textAlign: 'center',
-      padding: '16px 14px 0 14px',
-    };
-
-    return (
-      <div style={styles}>
-        {this._getWeekElements()}
-      </div>
-    );
-  },
-
 });
 
-export default CalendarMonth;
+module.exports = CalendarMonth;
